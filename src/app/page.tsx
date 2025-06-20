@@ -101,46 +101,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Analyze Deck Section */}
-        <section id="analyze-deck" className="py-16 md:py-24 bg-white px-4">
-          <div className="container mx-auto max-w-4xl text-center">
-            <motion.h2
-              className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-8"
-              variants={sectionVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              Upload Your Pitch Deck
-            </motion.h2>
-            <motion.p
-              className="text-lg text-gray-700 mb-10 max-w-2xl mx-auto"
-              variants={sectionVariants}
-              initial="hidden"
-              whileInView="visible"
-              transition={{ delay: 0.2 }}
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              Simply drag and drop your PDF or Docx file below. Our AI will get
-              to work analyzing it in seconds.
-            </motion.p>
-            <motion.div
-              className="border-4 border-dashed border-indigo-300 rounded-3xl p-10 md:p-20 text-gray-500 text-2xl flex flex-col items-center justify-center bg-indigo-50 bg-opacity-30 backdrop-blur-sm transition-all duration-300 hover:border-indigo-500 hover:bg-indigo-100 cursor-pointer h-64"
-              variants={sectionVariants}
-              initial="hidden"
-              whileInView="visible"
-              transition={{ delay: 0.4 }}
-              viewport={{ once: true, amount: 0.3 }}
-            >
-              <Upload size={48} className="text-indigo-400 mb-4" />
-              <span>Drag & Drop your Deck Here (PDF, DOCX)</span>
-              <input type="file" className="hidden" accept=".pdf,.docx" />
-              <Button className="mt-8 bg-indigo-600 text-white hover:bg-indigo-700 rounded-full px-6 py-3 font-semibold">
-                Browse Files
-              </Button>
-            </motion.div>
-          </div>
-        </section>
+        
+       
 
         {/* How It Works Section */}
         <section id="how-it-works" className="py-16 md:py-24 bg-gray-50 px-4">
@@ -265,12 +227,12 @@ export default function Home() {
               <Button
                 className="bg-purple-600 text-white hover:bg-purple-700 px-8 py-4 text-lg rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-purple-300"
                 onClick={() =>
-                  (window.location.href = "mailto:info@aipitchanalyzer.com")
+                  (window.location.href = "nitinvermanv61506@gmail.com")
                 }
               >
                 Email Us
               </Button>
-              <p className="text-gray-600 text-sm">info@aipitchanalyzer.com</p>
+              <p className="text-gray-600 text-sm">nitinvermanv61506@gmail.com</p>
             </motion.div>
           </div>
         </section>

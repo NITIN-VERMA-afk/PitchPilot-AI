@@ -107,6 +107,20 @@ interface AnalysisResult {
   [key: string]: any;
 }
 
+interface ApiResponse {
+  success: boolean;
+  analysis?: AnalysisResult;
+  error?: string;
+  debug?: {
+    rawResponse: string;
+    cleanedResponse: string;
+  };
+  metadata?: {
+    textExtracted: number;
+    timestamp: string;
+  };
+}
+
 const AnalyseDeckPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
@@ -114,6 +128,7 @@ const AnalyseDeckPage: React.FC = () => {
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
@@ -125,6 +140,7 @@ const AnalyseDeckPage: React.FC = () => {
       ) {
         setSelectedFile(file);
         setError(null);
+        setDebugInfo(null); // Clear previous debug info
       } else {
         setSelectedFile(null);
         setError("Please upload a PDF or DOCX file.");
@@ -132,6 +148,7 @@ const AnalyseDeckPage: React.FC = () => {
     } else {
       setSelectedFile(null);
       setError(null);
+      setDebugInfo(null);
     }
   };
 
@@ -146,52 +163,32 @@ const AnalyseDeckPage: React.FC = () => {
     setIsLoading(true);
     setAnalysisResult(null);
     setError(null);
+    setDebugInfo(null);
 
     const formData = new FormData();
     formData.append("pitchDeck", selectedFile);
 
     try {
-      const response = await new Promise<Response>((resolve, reject) => {
-        setTimeout(() => {
-          if (selectedFile.name.includes("error")) {
-            reject({ message: "Simulated API error: Could not process file." });
-          } else {
-            resolve(
-              new Response(
-                JSON.stringify({
-                  marketSize:
-                    "The pitch deck indicates a total addressable market (TAM) of $50 Billion, with a serviceable obtainable market (SOM) of $5 Billion over the next 3 years, focusing on the SaaS industry for SMBs.",
-                  productSummary:
-                    "The product is an AI-powered CRM designed to automate lead nurturing and customer support, leveraging natural language processing for personalized interactions. Key features include intelligent chatbots and predictive analytics.",
-                  teamOverview:
-                    "The founding team comprises a seasoned tech entrepreneur (CEO), a lead AI scientist with 10+ years in ML (CTO), and a marketing expert from a successful Series B startup (CMO).",
-                  tractionSummary:
-                    "Achieved 100 paying customers within 6 months of launch, 20% month-over-month revenue growth, and secured strategic partnerships with two industry leaders. Current ARR is $1.2 Million.",
-                  redFlags: [
-                    "Customer acquisition cost (CAC) seems high relative to stated lifetime value (LTV).",
-                    "Scalability plan for infrastructure isn't clearly detailed.",
-                    "Competitor analysis lacks depth, focusing only on direct competitors and overlooking indirect threats.",
-                  ],
-                }),
-                { status: 200 }
-              )
-            );
-          }
-        }, 2000);
+      const response = await fetch("/api/DeckAnalyzer", {
+        method: "POST",
+        body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || "Analysis failed. Please try again."
-        );
-      }
+      const data: ApiResponse = await response.json();
 
-      const result: AnalysisResult = await response.json();
-      setAnalysisResult(result);
+      if (data.success && data.analysis) {
+        setAnalysisResult(data.analysis);
+      } else {
+        // Handle different types of errors
+        if (data.debug) {
+          setDebugInfo(data.debug);
+          setError(`Analysis failed: ${data.error}. Debug information available.`);
+        } else {
+          setError(data.error || "Analysis failed for unknown reason.");
+        }
+      }
     } catch (err: any) {
-      console.error("Error during analysis:", err);
-      setError(err.message || "An unexpected error occurred during analysis.");
+      setError(err.message || "Network error occurred while analyzing the document.");
     } finally {
       setIsLoading(false);
     }
@@ -290,20 +287,44 @@ const AnalyseDeckPage: React.FC = () => {
             )}
 
             {error && (
-              <motion.p
-                className="text-red-600 text-sm text-center font-medium mt-2"
+              <motion.div
+                className="w-full"
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                {error}
-              </motion.p>
+                <div className="text-red-600 text-sm text-center font-medium bg-red-50 border border-red-200 rounded-lg p-3">
+                  {error}
+                </div>
+                
+                {/* Debug Information Toggle */}
+                {debugInfo && (
+                  <details className="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900">
+                      Show Debug Information
+                    </summary>
+                    <div className="mt-3 space-y-2 text-xs">
+                      <div>
+                        <strong>Raw AI Response:</strong>
+                        <pre className="mt-1 bg-white border rounded p-2 overflow-x-auto text-gray-600">
+                          {debugInfo.rawResponse}
+                        </pre>
+                      </div>
+                      <div>
+                        <strong>Cleaned Response:</strong>
+                        <pre className="mt-1 bg-white border rounded p-2 overflow-x-auto text-gray-600">
+                          {debugInfo.cleanedResponse}
+                        </pre>
+                      </div>
+                    </div>
+                  </details>
+                )}
+              </motion.div>
             )}
 
             <Button
               onClick={handleAnalyseClick}
               disabled={!selectedFile || isLoading}
               className="bg-green-600 text-white hover:bg-green-700 active:bg-green-800 transition-colors duration-200 px-8 py-3 text-lg font-bold shadow-lg mt-4 w-full sm:w-auto"
-              
             >
               {isLoading ? (
                 <div className="flex items-center">
