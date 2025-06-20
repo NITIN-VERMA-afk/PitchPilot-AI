@@ -1,6 +1,5 @@
-"use client"
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+"use client";
+
 import { motion } from "framer-motion";
 import { Upload, Lightbulb, Users, BarChart } from "lucide-react";
 
@@ -63,7 +62,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              Uncover Your Pitch Deck's Potential with{" "}
+              Uncover Your Pitch Deck&apos;s Potential with{" "}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-700">
                 AI-Powered Analysis
               </span>
@@ -100,9 +99,6 @@ export default function Home() {
             </motion.div>
           </div>
         </section>
-
-        
-       
 
         {/* How It Works Section */}
         <section id="how-it-works" className="py-16 md:py-24 bg-gray-50 px-4">
@@ -232,7 +228,9 @@ export default function Home() {
               >
                 Email Us
               </Button>
-              <p className="text-gray-600 text-sm">nitinvermanv61506@gmail.com</p>
+              <p className="text-gray-600 text-sm">
+                nitinvermanv61506@gmail.com
+              </p>
             </motion.div>
           </div>
         </section>
