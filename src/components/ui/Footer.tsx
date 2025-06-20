@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
             Privacy
           </a>
           <a
-            href="https://github.com/your-repo"
+            href="https://github.com/NITIN-VERMA-afk/PitchPilot-AI"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:underline"

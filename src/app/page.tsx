@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Upload, Lightbulb, Users, BarChart } from "lucide-react";
+import Link from "next/link";
 
 const Button = ({
   className,
@@ -87,14 +88,8 @@ export default function Home() {
                 stiffness: 100,
               }}
             >
-              <Button
-                className="bg-indigo-600 text-white hover:bg-indigo-700 px-8 py-4 text-lg rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-indigo-300"
-                onClick={() => {
-                  const element = document.getElementById("analyze-deck");
-                  if (element) element.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Analyze Your Deck Now
+              <Button className="bg-indigo-600 text-white hover:bg-indigo-700 px-8 py-4 text-lg rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-indigo-300">
+                <Link href="/AnalyzeDeck">Analyze Your Deck Now</Link>
               </Button>
             </motion.div>
           </div>

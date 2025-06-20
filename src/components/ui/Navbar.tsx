@@ -25,7 +25,7 @@ const navLinks: NavLink[] = [
   { name: "How it Works", href: "#how-it-works", isHash: true },
   { name: "About Us", href: "#about-us", isHash: true },
   { name: "Contact", href: "#contact", isHash: true },
-  { name: "Github", href: "https://github.com/your-repo", isExternal: true },
+  { name: "Github", href: "https://github.com/NITIN-VERMA-afk/PitchPilot-AI", isExternal: true },
 ];
 
 interface ButtonProps
