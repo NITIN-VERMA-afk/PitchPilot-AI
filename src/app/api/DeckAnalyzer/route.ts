@@ -3,6 +3,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { OpenAI } from "openai";
 
+interface TextItem {
+  str: string;
+  dir?: string;
+  width?: number;
+  height?: number;
+  transform?: number[];
+  fontName?: string;
+}
+
+interface TextContent {
+  items: TextItem[];
+}
+
+interface PDFPage {
+  getTextContent(): Promise<TextContent>;
+}
+
+interface PDFDocument {
+  numPages: number;
+  getPage(pageNumber: number): Promise<PDFPage>;
+}
+
+interface PDFJSLib {
+  GlobalWorkerOptions: {
+    workerSrc: string;
+  };
+  getDocument(options: {
+    data: Uint8Array;
+    verbosity: number;
+    useWorkerFetch: boolean;
+    isEvalSupported: boolean;
+    useSystemFonts: boolean;
+  }): {
+    promise: Promise<PDFDocument>;
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const apiKey = process.env.OPENAI_API_KEY;
@@ -25,17 +62,17 @@ export async function POST(req: NextRequest) {
     let extractedText = "";
 
     try {
-      // Try parsing with pdf-parse
+     
       const pdfParse = await import("pdf-parse").then((mod) => mod.default);
       const pdfData = await pdfParse(buffer);
       extractedText = pdfData.text;
     } catch (pdfParseError) {
       console.error("pdf-parse failed:", pdfParseError);
 
-      // Fallback to pdfjs-dist
+    
       try {
-        const pdfjsLib = await import("pdfjs-dist");
-        (pdfjsLib as any).GlobalWorkerOptions.workerSrc = '';
+        const pdfjsLib = await import("pdfjs-dist") as unknown as PDFJSLib;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
 
         const pdf = await pdfjsLib.getDocument({
           data: new Uint8Array(buffer),
@@ -50,7 +87,7 @@ export async function POST(req: NextRequest) {
           textPromises.push(
             pdf.getPage(i).then(async (page) => {
               const textContent = await page.getTextContent();
-              return textContent.items.map((item: any) => item.str).join(" ");
+              return textContent.items.map((item: TextItem) => item.str).join(" ");
             })
           );
         }
@@ -70,7 +107,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Clean and truncate
+
     extractedText = extractedText.replace(/\s+/g, " ").trim().slice(0, 8000);
 
     if (!extractedText || extractedText.length < 50) {
@@ -109,12 +146,12 @@ ${extractedText}
 
     const analysisText = completion.choices[0].message?.content ?? "{}";
 
-    // Clean the response to extract JSON
+  
     function extractAndCleanJSON(text: string): string {
-      // Remove markdown code blocks
+    
       let cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '');
       
-      // Find the first { and last } to extract just the JSON part
+    
       const firstBrace = cleaned.indexOf('{');
       const lastBrace = cleaned.lastIndexOf('}');
       
@@ -156,7 +193,7 @@ ${extractedText}
       console.error("JSON parse failed:", parseError);
       console.error("Raw AI response:", analysisText);
       
-      // Return the raw response for debugging
+      
       return NextResponse.json({
         success: false,
         error: "Failed to parse AI response as JSON",

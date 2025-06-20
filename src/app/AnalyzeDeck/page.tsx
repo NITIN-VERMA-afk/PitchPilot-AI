@@ -6,14 +6,12 @@ import { motion } from "framer-motion";
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "default" | "outline" | "ghost" | "destructive" | "link";
   size?: "default" | "sm" | "lg" | "icon";
-  asChild?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
   className,
   variant = "default",
   size = "default",
-  asChild = false,
   ...props
 }) => {
   const baseClasses =
@@ -44,47 +42,34 @@ const Button: React.FC<ButtonProps> = ({
   );
 };
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const Card: React.FC<CardProps> = ({ className, ...props }) => (
+const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...props }) => (
   <div
     className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`}
     {...props}
   />
 );
 
-interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const CardHeader: React.FC<CardHeaderProps> = ({ className, ...props }) => (
+const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...props }) => (
   <div className={`flex flex-col space-y-1.5 p-6 ${className}`} {...props} />
 );
 
-interface CardTitleProps extends React.HTMLAttributes<HTMLParagraphElement> {}
-
-const CardTitle: React.FC<CardTitleProps> = ({ className, ...props }) => (
+const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({ className, ...props }) => (
   <h3
     className={`text-2xl font-semibold leading-none tracking-tight ${className}`}
     {...props}
   />
 );
 
-interface CardDescriptionProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {}
-
-const CardDescription: React.FC<CardDescriptionProps> = ({
+const CardDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement>> = ({
   className,
   ...props
 }) => <p className={`text-sm text-muted-foreground ${className}`} {...props} />;
 
-interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const CardContent: React.FC<CardContentProps> = ({ className, ...props }) => (
+const CardContent: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...props }) => (
   <div className={`p-6 pt-0 ${className}`} {...props} />
 );
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
-
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
+const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, type, ...props }, ref) => {
     return (
       <input
@@ -104,17 +89,19 @@ interface AnalysisResult {
   teamOverview: string;
   tractionSummary: string;
   redFlags?: string[];
-  [key: string]: any;
+  [key: string]: string | string[] | undefined;
+}
+
+interface DebugInfo {
+  rawResponse: string;
+  cleanedResponse: string;
 }
 
 interface ApiResponse {
   success: boolean;
   analysis?: AnalysisResult;
   error?: string;
-  debug?: {
-    rawResponse: string;
-    cleanedResponse: string;
-  };
+  debug?: DebugInfo;
   metadata?: {
     textExtracted: number;
     timestamp: string;
@@ -128,7 +115,7 @@ const AnalyseDeckPage: React.FC = () => {
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
@@ -187,8 +174,9 @@ const AnalyseDeckPage: React.FC = () => {
           setError(data.error || "Analysis failed for unknown reason.");
         }
       }
-    } catch (err: any) {
-      setError(err.message || "Network error occurred while analyzing the document.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Network error occurred while analyzing the document.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
